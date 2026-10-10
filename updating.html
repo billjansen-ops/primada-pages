@@ -33,15 +33,18 @@
   </div>
   <script>
     // Heroku shows this page inside a frame on the site's own address. Every
-    // fifteen seconds, ask the site whether it is back; when it answers, send
-    // the whole window to the site (the frame cannot know the page the person
-    // was on, so it is the front door). Nothing else runs here.
+    // fifteen seconds, ask the site whether it is back by loading its small
+    // icon (an image needs no cross-origin permission; while the site is
+    // down the load fails); the moment it loads, send the whole window to
+    // the site (the frame cannot know the page the person was on, so it is
+    // the front door). Nothing else runs here.
     (function () {
       var site = 'https://demo.primada.io';
       function probe() {
-        fetch(site + '/v1/version', { mode: 'cors', cache: 'no-store' })
-          .then(function (r) { if (r.ok) { window.top.location = site + '/'; } })
-          .catch(function () {});
+        var img = new Image();
+        img.onload = function () { window.top.location = site + '/'; };
+        img.onerror = function () {};
+        img.src = site + '/logos/primada-icon.png?probe=' + Math.random().toString(36).slice(2);
       }
       setInterval(probe, 15000);
       setTimeout(probe, 5000);
