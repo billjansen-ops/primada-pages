@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="20">
   <title>Primada — One moment</title>
   <!-- One self-contained file (the logo is built in): it lives OUTSIDE the app, on a host that stays up,
        and Heroku shows it when the app is in maintenance mode or down (Session 186). Source of truth:
@@ -32,5 +31,21 @@
     <p>This page checks for us on its own. You do not need to do anything.</p>
     <div class="small">If you still see this after ten minutes, write to <a href="mailto:support@primada.io">support@primada.io</a>.</div>
   </div>
+  <script>
+    // Heroku shows this page inside a frame on the site's own address. Every
+    // fifteen seconds, ask the site whether it is back; when it answers, send
+    // the whole window to the site (the frame cannot know the page the person
+    // was on, so it is the front door). Nothing else runs here.
+    (function () {
+      var site = 'https://demo.primada.io';
+      function probe() {
+        fetch(site + '/v1/version', { mode: 'cors', cache: 'no-store' })
+          .then(function (r) { if (r.ok) { window.top.location = site + '/'; } })
+          .catch(function () {});
+      }
+      setInterval(probe, 15000);
+      setTimeout(probe, 5000);
+    })();
+  </script>
 </body>
 </html>
